@@ -165,9 +165,30 @@ export default function App() {
       <AppBar position="static" elevation={0} sx={{ bgcolor: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <Toolbar>
           <IconPower sx={{ mr: 1 }} />
-          <Typography variant="h6" sx={{ flex: 1 }}>
-            Kapatika
-          </Typography>
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <Typography variant="h6" sx={{ lineHeight: 1.2 }}>
+              Kapatika
+            </Typography>
+            <Typography variant="caption" sx={{ opacity: 0.6, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              Created by
+              <Button
+                variant="text"
+                size="small"
+                onClick={() => window.open('https://an1lbayram.github.io/', '_blank')}
+                sx={{
+                  p: 0,
+                  minWidth: 0,
+                  textTransform: 'none',
+                  fontSize: 'inherit',
+                  color: 'inherit',
+                  fontWeight: 600,
+                  '&:hover': { background: 'transparent', textDecoration: 'underline' }
+                }}
+              >
+                &lt;/&gt; an1lbayram
+              </Button>
+            </Typography>
+          </Box>
           <Button
             color="inherit"
             startIcon={<IconRefresh />}
