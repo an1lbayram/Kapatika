@@ -23,7 +23,7 @@ function runShutdown(args: string[]): Promise<{ code: number; stdout: string; st
 
 function planLikeLegacy(totalSeconds: number): ShutdownPlan {
   if (!Number.isFinite(totalSeconds) || totalSeconds <= 0) {
-    throw new Error('Sure 0 dan buyuk olmali.')
+    throw new Error('Süre 0\'dan büyük olmalı.')
   }
   if (totalSeconds > 600) {
     return { totalSeconds, preWaitSeconds: totalSeconds - 600, shutdownTSeconds: 600 }
@@ -112,7 +112,7 @@ app.on('window-all-closed', () => {
 
 ipcMain.handle('shutdown:schedule', async (_evt, totalSeconds: number): Promise<ApiResult<ShutdownPlan>> => {
   try {
-    if (process.platform !== 'win32') return { ok: false, error: 'Bu uygulama Windows icin tasarlandi.' }
+    if (process.platform !== 'win32') return { ok: false, error: 'Bu uygulama Windows için tasarlandı.' }
     const plan = await scheduleShutdown(totalSeconds)
     mainWindow?.webContents.send('shutdown:state', state)
     return { ok: true, value: plan }
@@ -123,7 +123,7 @@ ipcMain.handle('shutdown:schedule', async (_evt, totalSeconds: number): Promise<
 
 ipcMain.handle('shutdown:cancel', async (): Promise<ApiResult<true>> => {
   try {
-    if (process.platform !== 'win32') return { ok: false, error: 'Bu uygulama Windows icin tasarlandi.' }
+    if (process.platform !== 'win32') return { ok: false, error: 'Bu uygulama Windows için tasarlandı.' }
     await cancelShutdown()
     mainWindow?.webContents.send('shutdown:state', state)
     return { ok: true, value: true }
@@ -134,7 +134,7 @@ ipcMain.handle('shutdown:cancel', async (): Promise<ApiResult<true>> => {
 
 ipcMain.handle('shutdown:status', async (): Promise<ApiResult<{ state: ShutdownState; raw: string }>> => {
   try {
-    if (process.platform !== 'win32') return { ok: false, error: 'Bu uygulama Windows icin tasarlandi.' }
+    if (process.platform !== 'win32') return { ok: false, error: 'Bu uygulama Windows için tasarlandı.' }
 
     // Best-effort raw output (Windows has no clean status command)
     const res = await runShutdown(['/a'])

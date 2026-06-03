@@ -30,7 +30,7 @@ function parseDurationToSeconds(input: string): ParsedDuration {
 
   if (/^\d+$/.test(raw)) {
     const sec = Number(raw)
-    if (!Number.isFinite(sec) || sec <= 0) return { ok: false, error: 'Süre 0 dan büyük olmalı.' }
+    if (!Number.isFinite(sec) || sec <= 0) return { ok: false, error: 'Süre 0\'dan büyük olmalı.' }
     return { ok: true, seconds: sec }
   }
 
@@ -41,7 +41,7 @@ function parseDurationToSeconds(input: string): ParsedDuration {
   const min = Number(m[2] ?? 0)
   const s = Number(m[3] ?? 0)
   const total = h * 3600 + min * 60 + s
-  if (!Number.isFinite(total) || total <= 0) return { ok: false, error: 'Süre 0 dan büyük olmalı.' }
+  if (!Number.isFinite(total) || total <= 0) return { ok: false, error: 'Süre 0\'dan büyük olmalı.' }
   return { ok: true, seconds: total }
 }
 
@@ -71,7 +71,7 @@ export default function App() {
 
   function getApi() {
     const api = window.sureliKapatma
-    if (!api) throw new Error('Uygulama Electron disinda calisiyor gibi gorunuyor.')
+    if (!api) throw new Error('Uygulama Electron dışında çalışıyor gibi görünüyor.')
     return api
   }
 
@@ -117,7 +117,7 @@ export default function App() {
       const plan = res.value
       if (plan.preWaitSeconds > 0) {
         setInfo(
-          `Kapatma kuruldu. Once ${formatDuration(plan.preWaitSeconds)} beklenir, sonra son 10 dk baslar.`,
+          `Kapatma kuruldu. Önce ${formatDuration(plan.preWaitSeconds)} beklenir, sonra son 10 dk başlar.`,
         )
       } else {
         setInfo(`Kapatma kuruldu: ${formatDuration(plan.shutdownTSeconds)} sonra.`)
@@ -137,7 +137,7 @@ export default function App() {
     try {
       const res = await getApi().cancel()
       if (!res.ok) throw new Error(res.error)
-      setInfo('Iptal edildi (varsa).')
+      setInfo('İptal edildi (varsa).')
       await refreshStatus()
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
@@ -155,9 +155,9 @@ export default function App() {
 
   const statusLine =
     state.kind === 'idle'
-      ? 'Durum: Bos'
+      ? 'Durum: Boş'
       : state.kind === 'scheduled'
-        ? `Durum: Kapanma zamanli (t=${state.shutdownTSeconds}s)`
+        ? `Durum: Kapanma zamanlı (t=${state.shutdownTSeconds}s)`
         : `Durum: Beklemede (kalan ${formatDuration(remainingPrewaitSeconds)})`
 
   return (
@@ -211,7 +211,7 @@ export default function App() {
                         setError(null)
                         setInfo(null)
                         if (wheelSeconds <= 0) {
-                          setError('Süre 0 dan büyük olmalı.')
+                          setError('Süre 0\'dan büyük olmalı.')
                           return
                         }
                         setBusy(true)
@@ -221,7 +221,7 @@ export default function App() {
                           const plan = res.value
                           if (plan.preWaitSeconds > 0) {
                             setInfo(
-                              `Kapatma kuruldu. Once ${formatDuration(plan.preWaitSeconds)} beklenir, sonra son 10 dk baslar.`,
+                              `Kapatma kuruldu. Önce ${formatDuration(plan.preWaitSeconds)} beklenir, sonra son 10 dk başlar.`,
                             )
                           } else {
                             setInfo(`Kapatma kuruldu: ${formatDuration(plan.shutdownTSeconds)} sonra.`)
@@ -289,7 +289,7 @@ export default function App() {
                 </Typography>
                 <Divider sx={{ my: 1 }} />
                 <Typography variant="subtitle2" sx={{ opacity: 0.8 }}>
-                  Windows cikti (ham)
+                  Windows çıktısı (ham)
                 </Typography>
                 <Box
                   component="pre"
@@ -305,7 +305,7 @@ export default function App() {
                     fontSize: 12,
                   }}
                 >
-                  {rawStatus || '(Bos)'}
+                  {rawStatus || '(Boş)'}
                 </Box>
               </Stack>
             </CardContent>
