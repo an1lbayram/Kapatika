@@ -31,9 +31,9 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
     const el = containerRef.current
     if (!el) return
     if (selectedIndex < 0) return
-    const top = (selectedIndex + pad) * itemH
+    const top = selectedIndex * itemH
     el.scrollTo({ top, behavior: 'instant' as ScrollBehavior })
-  }, [selectedIndex])
+  }, [selectedIndex, itemH])
 
   useEffect(() => {
     const el = containerRef.current
@@ -42,7 +42,7 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
     const onScroll = () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
       rafRef.current = requestAnimationFrame(() => {
-        const idx = Math.round(el.scrollTop / itemH) - pad
+        const idx = Math.round(el.scrollTop / itemH)
         const clamped = clampIndex(idx, 0, values.length - 1)
         const next = values[clamped]
         if (next !== value) onChange(next)
@@ -54,7 +54,7 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
       el.removeEventListener('scroll', onScroll)
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
     }
-  }, [itemH, onChange, pad, value, values])
+  }, [itemH, onChange, value, values])
 
   const selectedText = pad2 ? String(value).padStart(2, '0') : String(value)
 
@@ -111,7 +111,7 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
                   if (isBlank) return
                   const idx = values.indexOf(v)
                   if (idx < 0) return
-                  containerRef.current?.scrollTo({ top: (idx + pad) * itemH, behavior: 'smooth' })
+                  containerRef.current?.scrollTo({ top: idx * itemH, behavior: 'smooth' })
                 }}
               >
                 {txt}
