@@ -1,53 +1,93 @@
-# Kapatika (Desktop)
+# ⏰ Kapatika - Windows Otomatik Kapatma Zamanlayıcısı
 
-[English](./README.en.md)
+![Electron](https://img.shields.io/badge/Electron-Latest-47848F?logo=electron)
+![React](https://img.shields.io/badge/React-18-blue?logo=react)
+![MUI](https://img.shields.io/badge/MUI-5-007FFF?logo=mui)
+![Vite](https://img.shields.io/badge/Vite-Ready-646CFF?logo=vite)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-!React
-!Electron
+**Kapatika**, Windows bilgisayarınızın belirli bir süre veya saat sonunda otomatik ve güvenli şekilde kapatılmasını sağlayan modern bir masaüstü zamanlayıcı uygulamasıdır. **Electron**, **React**, **Material-UI (MUI)** ve **Vite** altyapısıyla geliştirilmiştir.
 
-Windows için **Kapatika** bilgisayar zamanlayıcı uygulaması. Electron ve React ile geliştirilmiştir. İşletim sisteminizi belirtilen süre sonunda güvenli şekilde `shutdown.exe` çağrıları kullanarak kapatır.
+🌐 *Read this in [English](README.en.md).*
 
-## Teknoloji Yığını
+---
 
-- **Arayüz (Frontend):** React, Material-UI (MUI), Vite
-- **Masaüstü Çerçevesi:** Electron, electron-builder
+## ✨ Özellikler
 
-## Özellikler
+- ⏳ **Canlı Geri Sayım & İlerleme Çubuğu:** Aktif zamanlayıcılar için dijital saat ve görsel dolum çubuğu.
+- ⚡ **Hızlı Süre Butonları:** 15 dk, 30 dk, 45 dk, 1 saat gibi hazır butonlarla tek tıkla zamanlama.
+- 🔄 **Akıllı Girdi ve Senkronizasyon:** Süre tekerleği ile serbest metin girişi (`90`, `600s`, `10m`, `1h30m`, `2h15m10s`) çift yönlü senkronize çalışır.
+- 🛑 **Güvenli İptal Seçeneği:** Başlatılmış olan kapatma işlemini dilediğiniz an tek tıkla iptal etme.
+- 🎨 **Modern Glassmorphism Tasarım:** Şık karanlık tema, göz yormayan renk paleti ve tepkisel arayüz.
+- 🛡️ **Sistem Güvenliği:** Kapatma komutları yalnızca Electron **Main Process** içinden güvenli IPC ile çağrılır (`shutdown.exe`).
 
-- **Canlı Geri Sayım & İlerleme Çubuğu**: Aktif zamanlayıcılar için dijital saat ve görsel ilerleme çubuğu.
-- **Hızlı Süre Butonları**: 15 dk, 30 dk, 45 dk, 1 saat gibi hazır butonlarla 1-tıkla zamanlama.
-- **Tekerlek & Metin Senkronizasyonu**: Süre tekerleği ve serbest metin girişi (`90`, `600s`, `10m`, `1h30m`, `2h15m10s`) çift yönlü senkronizedir.
-- **İptal Seçeneği**: Başlatılmış zamanlanmış kapatmayı tek tıkla anında ve güvenle iptal edebilme.
-- **Web Önizleme Desteği**: Tarayıcı / Netlify üzerinde simülasyon olarak test edebilme imkanı.
-- **Kullanıcı Dostu & Cam Efektli (Glassmorphism) Modern Arayüz**: Şık karanlık tema ve tepkisel tasarım.
+---
 
-## Geliştirme
+## 💻 Sistem Gereksinimleri
+
+1. **Windows 10 veya Windows 11**
+2. **Node.js** (v18.0.0 veya üzeri): [Node.js İndir](https://nodejs.org/)
+3. **Git**: [Git İndir](https://git-scm.com/)
+
+---
+
+## 🚀 Kurulum ve Çalıştırma
+
+### ⚡ Tek Satırda Kurulum ve Çalıştırma (Hızlı Başlangıç)
+
+Terminalinizi (PowerShell / CMD) açıp aşağıdaki tek komutu yapıştırarak projeyi anında klonlayabilir, bağımlılıkları yükleyebilir ve uygulamayı çalıştırabilirsiniz:
 
 ```bash
-npm install
-npm run dev
+git clone https://github.com/an1lbayram/Kapatika.git && cd Kapatika && npm install && npm run dev
 ```
 
-> Not: `npm run dev` Vite sunucusunu başlatır ve port doluysa otomatik başka porta geçer. Electron otomatik doğru URL ile açılır.
+---
 
-## Build (release)
+### 📋 Adım Adım Kurulum (Hiç Bilmeyenler İçin)
+
+#### 1️⃣ Terminal / Komut Satırını Açın
+Windows Başlat menüsünden `PowerShell` veya `CMD` uygulamasını açın.
+
+#### 2️⃣ Repoyu Klonlayın
+Projeyi bilgisayarınıza indirmek için:
+```bash
+git clone https://github.com/an1lbayram/Kapatika.git
+```
+
+#### 3️⃣ Proje Klasörüne Geçin
+```bash
+cd Kapatika
+```
+
+#### 4️⃣ Bağımlılıkları (Gerekli Paketleri) Yükleyin
+```bash
+npm install
+```
+
+#### 5️⃣ Uygulamayı Geliştirici Modunda Başlatın
+```bash
+npm run dev
+```
+Vite geliştirme sunucusu başlayacak ve Electron masaüstü penceresi otomatik açılacaktır.
+
+---
+
+## 📦 Kurulum Dosyası (.exe) Oluşturma (Build)
+
+Projeyi Windows yükleyicisi (`Setup.exe`) veya taşınabilir (`Portable.exe`) formatta derlemek için:
 
 ```bash
 npm run dist
 ```
 
-Çıktı `dist/` (renderer) ve `dist-electron/` (main/preload) altında hazırlanır; `electron-builder` Windows için installer/portable üretir.
+Oluşturulan dosyalar **`dist/`** klasörü altında yer alır:
+- `Kapatika Setup <sürüm>.exe` (NSIS Yükleyici)
+- `Kapatika <sürüm>.exe` (Portatif sürüm)
 
-Oluşan dosyalar:
+---
 
-- `dist/Kapatika Setup <versiyon>.exe` (NSIS installer)
-- `dist/Kapatika <versiyon>.exe` (portable)
+## 📄 Lisans
 
-## Güvenlik
+Bu proje [MIT Lisansı](LICENSE) ile lisanslanmıştır.
 
-- Renderer tarafında **Node entegrasyonu kapalıdır**.
-- `shutdown.exe` çağrıları sadece Electron **main process** içinden yapılır (IPC ile).
-
-## Not: electron-builder (Windows) symlink hatası
-
-Bazı Windows kurulumlarında `electron-builder` `winCodeSign` arşivini açarken **symbolic link** yetkisi yüzünden hata verebiliyor. Bu proje `npm run dist` öncesi otomatik olarak `winCodeSign` cache'ini **symlink gerektirmeyen zip** ile doldurur (`scripts/prefetch-winCodeSign.mjs`).
+**Geliştirici:** [Anıl Bayram](https://github.com/an1lbayram)

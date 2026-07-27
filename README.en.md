@@ -1,49 +1,92 @@
-# Kapatika (Desktop)
+# ⏰ Kapatika - Windows Auto Shutdown Timer
 
-[Türkçe](./README.md)
+![Electron](https://img.shields.io/badge/Electron-Latest-47848F?logo=electron)
+![React](https://img.shields.io/badge/React-18-blue?logo=react)
+![MUI](https://img.shields.io/badge/MUI-5-007FFF?logo=mui)
+![Vite](https://img.shields.io/badge/Vite-Ready-646CFF?logo=vite)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![Electron](https://img.shields.io/badge/Electron-191970?style=for-the-badge&logo=electron&logoColor=white)
+**Kapatika** is a modern Windows desktop shutdown timer application designed to safely schedule system shutdowns after a specified duration or at a precise time using native `shutdown.exe` calls. Built with **Electron**, **React**, **Material-UI (MUI)**, and **Vite**.
 
-A Windows shutdown timer application. Developed with Electron and React. It securely shuts down your operating system after a specified duration using `shutdown.exe` calls.
+🌐 *Türkçe dökümantasyon için [tıklayın](README.md).*
 
-## Technology Stack
+---
 
-- **Frontend:** React, Material-UI (MUI), Vite
-- **Desktop Framework:** Electron, electron-builder
+## ✨ Features
 
-## Features
+- ⏳ **Live Countdown & Progress Bar:** Digital clock and visual fill bar for active timers.
+- ⚡ **Quick Timer Buttons:** 1-click scheduling with presets like 15m, 30m, 45m, 1h.
+- 🔄 **Smart Input Sync:** Time wheel and freeform text input (`90`, `600s`, `10m`, `1h30m`, `2h15m10s`) stay bidirectionally synced.
+- 🛑 **Safe Cancel:** Instantly and safely abort any active scheduled shutdown.
+- 🎨 **Modern Glassmorphism UI:** Sleek dark mode interface with responsive layout.
+- 🛡️ **Security:** Node integration is disabled in renderer; `shutdown.exe` calls execute strictly via IPC in the Electron main process.
 
-- **Live Countdown & Progress Bar**: Real-time digital clock and visual progress gauge for active timers.
-- **Quick Preset Buttons**: 1-click scheduling with 15 min, 30 min, 45 min, 1 hour presets.
-- **Wheel & Text Sync**: Bidirectional sync between scroll wheel and flexible time input (`90`, `600s`, `10m`, `1h30m`, `2h15m10s`).
-- **Instant Cancel**: Easily abort scheduled shutdowns with one click.
-- **Web Preview Support**: Safe simulation mode when running in browser / Netlify.
-- **Modern Glassmorphic UI**: Sleek dark mode design with responsive layout.
+---
 
-## Development
+## 💻 System Requirements
+
+1. **Windows 10 or Windows 11**
+2. **Node.js** (v18.0.0 or higher): [Download Node.js](https://nodejs.org/)
+3. **Git**: [Download Git](https://git-scm.com/)
+
+---
+
+## 🚀 Installation & Getting Started
+
+### ⚡ One-Liner Quick Start
+
+Open PowerShell or Command Prompt and run the single command below to clone, install, and start Kapatika:
 
 ```bash
-npm install
-npm run dev
+git clone https://github.com/an1lbayram/Kapatika.git && cd Kapatika && npm install && npm run dev
 ```
 
-> Note: `npm run dev` starts the Vite server and automatically switches to another port if the default is busy. Electron opens with the correct URL automatically.
+---
 
-## Build (release)
+### 📋 Step-by-Step Installation (For Beginners)
+
+#### 1️⃣ Open Terminal / Command Prompt
+Press the Windows Key, type `PowerShell` or `cmd`, and press Enter.
+
+#### 2️⃣ Clone the Repository
+```bash
+git clone https://github.com/an1lbayram/Kapatika.git
+```
+
+#### 3️⃣ Navigate to Project Directory
+```bash
+cd Kapatika
+```
+
+#### 4️⃣ Install Dependencies
+```bash
+npm install
+```
+
+#### 5️⃣ Start the Application
+```bash
+npm run dev
+```
+Vite dev server will start and the Electron window will open automatically.
+
+---
+
+## 📦 Building Installer (.exe)
+
+To build a Windows NSIS installer or portable executable:
 
 ```bash
 npm run dist
 ```
 
-The output is generated under `dist/` (renderer) and `dist-electron/` (main/preload); `electron-builder` produces an installer/portable for Windows.
+Output files will be generated in the **`dist/`** directory:
+- `Kapatika Setup <version>.exe` (Installer)
+- `Kapatika <version>.exe` (Portable)
 
-## Security
+---
 
-- Node integration is **disabled** in the renderer process.
-- `shutdown.exe` calls are made only from the Electron **main process** via IPC (Context Bridge).
+## 📄 License
 
-## Note: electron-builder (Windows) symlink error
+This project is licensed under the [MIT License](LICENSE).
 
-On some Windows setups, `electron-builder` can fail when extracting the `winCodeSign` archive due to **symbolic link** permission issues.
-This project automatically populates the `winCodeSign` cache with a **symlink-free zip** before `npm run dist` (`scripts/prefetch-winCodeSign.mjs`).
+**Developer:** [Anıl Bayram](https://github.com/an1lbayram)
