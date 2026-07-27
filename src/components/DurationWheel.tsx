@@ -24,15 +24,22 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
 
   const containerRef = useRef<HTMLDivElement | null>(null)
   const rafRef = useRef<number | null>(null)
+  const isUserScrollingRef = useRef(false)
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const selectedIndex = values.indexOf(value)
 
+  // Scroll to selected position when prop changes externally (not during user scrolling)
   useEffect(() => {
     const el = containerRef.current
-    if (!el) return
-    if (selectedIndex < 0) return
-    const top = selectedIndex * itemH
-    el.scrollTo({ top, behavior: 'instant' as ScrollBehavior })
+    if (!el || selectedIndex < 0) return
+    if (isUserScrollingRef.current) return
+
+    const currentIdx = Math.round(el.scrollTop / itemH)
+    if (currentIdx !== selectedIndex) {
+      const top = selectedIndex * itemH
+      el.scrollTo({ top, behavior: 'smooth' })
+    }
   }, [selectedIndex, itemH])
 
   useEffect(() => {
@@ -40,12 +47,18 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
     if (!el) return
 
     const onScroll = () => {
+      isUserScrollingRef.current = true
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current)
+      scrollTimeoutRef.current = setTimeout(() => {
+        isUserScrollingRef.current = false
+      }, 150)
+
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
       rafRef.current = requestAnimationFrame(() => {
         const idx = Math.round(el.scrollTop / itemH)
         const clamped = clampIndex(idx, 0, values.length - 1)
         const next = values[clamped]
-        if (next !== value) onChange(next)
+        if (next !== value && next !== undefined) onChange(next)
       })
     }
 
@@ -53,6 +66,7 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
     return () => {
       el.removeEventListener('scroll', onScroll)
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current)
     }
   }, [itemH, onChange, value, values])
 
@@ -60,7 +74,7 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
 
   return (
     <Stack spacing={1} sx={{ minWidth: 110 }}>
-      <Typography variant="caption" sx={{ opacity: 0.7, letterSpacing: 0.4 }}>
+      <Typography variant="caption" sx={{ opacity: 0.7, letterSpacing: 0.4, fontWeight: 600 }}>
         {label}
       </Typography>
 
@@ -68,9 +82,10 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
         sx={{
           position: 'relative',
           borderRadius: 3,
-          border: '1px solid rgba(255,255,255,0.10)',
-          bgcolor: 'rgba(0,0,0,0.18)',
+          border: '1px solid rgba(255,255,255,0.12)',
+          bgcolor: 'rgba(0,0,0,0.25)',
           overflow: 'hidden',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
         }}
       >
         <Box
@@ -82,9 +97,9 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
             '&::-webkit-scrollbar': { display: 'none' },
             scrollSnapType: 'y mandatory',
             WebkitMaskImage:
-              'linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)',
+              'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
             maskImage:
-              'linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)',
+              'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
           }}
         >
           {list.map((v, i) => {
@@ -101,9 +116,10 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
                   justifyContent: 'center',
                   scrollSnapAlign: 'center',
                   fontVariantNumeric: 'tabular-nums',
-                  fontSize: 18,
-                  color: isSelected ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.55)',
-                  transition: 'color 120ms ease',
+                  fontSize: isSelected ? 20 : 16,
+                  fontWeight: isSelected ? 700 : 400,
+                  color: isSelected ? '#38bdf8' : 'rgba(255,255,255,0.45)',
+                  transition: 'all 150ms ease',
                   cursor: isBlank ? 'default' : 'pointer',
                   userSelect: 'none',
                 }}
@@ -111,6 +127,8 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
                   if (isBlank) return
                   const idx = values.indexOf(v)
                   if (idx < 0) return
+                  isUserScrollingRef.current = false
+                  onChange(v)
                   containerRef.current?.scrollTo({ top: idx * itemH, behavior: 'smooth' })
                 }}
               >
@@ -124,15 +142,15 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
           sx={{
             pointerEvents: 'none',
             position: 'absolute',
-            left: 10,
-            right: 10,
+            left: 8,
+            right: 8,
             top: '50%',
             transform: 'translateY(-50%)',
             height: itemH,
             borderRadius: 2,
-            border: '1px solid rgba(255,255,255,0.14)',
-            bgcolor: 'rgba(255,255,255,0.06)',
-            boxShadow: '0 0 0 1px rgba(0,0,0,0.25) inset',
+            border: '1px solid rgba(56, 189, 248, 0.4)',
+            bgcolor: 'rgba(56, 189, 248, 0.08)',
+            boxShadow: '0 0 12px rgba(56, 189, 248, 0.15) inset',
           }}
         />
       </Box>
@@ -173,4 +191,3 @@ export function DurationWheel({ value, onChange, maxHours = 23 }: DurationWheelP
     </Stack>
   )
 }
-

@@ -2,6 +2,7 @@
   "name": "kapatika",
   "private": true,
   "version": "1.0.0",
+  "type": "module",
   "description": "Windows için süreli kapatma masaüstü uygulaması (Electron + React).",
   "author": "derbe",
   "main": "dist-electron/main.cjs",

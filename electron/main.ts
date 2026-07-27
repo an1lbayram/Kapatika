@@ -32,11 +32,8 @@ function planLikeLegacy(totalSeconds: number): ShutdownPlan {
 }
 
 async function scheduleShutdown(totalSeconds: number): Promise<ShutdownPlan> {
-  // Cancel any previous prewait timer (if user reschedules)
-  if (prewaitTimer) {
-    clearTimeout(prewaitTimer)
-    prewaitTimer = null
-  }
+  // Always cancel any existing timer or OS-level shutdown before scheduling new one
+  await cancelShutdown()
 
   const plan = planLikeLegacy(totalSeconds)
 
@@ -46,12 +43,24 @@ async function scheduleShutdown(totalSeconds: number): Promise<ShutdownPlan> {
     prewaitTimer = setTimeout(async () => {
       prewaitTimer = null
       await runShutdown(['/s', '/t', String(plan.shutdownTSeconds)])
-      state = { kind: 'scheduled', shutdownTSeconds: plan.shutdownTSeconds }
+      const targetEpochMs = Date.now() + plan.shutdownTSeconds * 1000
+      state = {
+        kind: 'scheduled',
+        shutdownTSeconds: plan.shutdownTSeconds,
+        targetEpochMs,
+        totalSeconds: plan.totalSeconds,
+      }
       mainWindow?.webContents.send('shutdown:state', state)
     }, plan.preWaitSeconds * 1000)
   } else {
     await runShutdown(['/s', '/t', String(plan.shutdownTSeconds)])
-    state = { kind: 'scheduled', shutdownTSeconds: plan.shutdownTSeconds }
+    const targetEpochMs = Date.now() + plan.shutdownTSeconds * 1000
+    state = {
+      kind: 'scheduled',
+      shutdownTSeconds: plan.shutdownTSeconds,
+      targetEpochMs,
+      totalSeconds: plan.totalSeconds,
+    }
   }
 
   return plan
@@ -136,14 +145,19 @@ ipcMain.handle('shutdown:status', async (): Promise<ApiResult<{ state: ShutdownS
   try {
     if (process.platform !== 'win32') return { ok: false, error: 'Bu uygulama Windows için tasarlandı.' }
 
-    // Best-effort raw output (Windows has no clean status command)
-    const res = await runShutdown(['/a'])
-    const raw = [res.stdout.trim(), res.stderr.trim()].filter(Boolean).join('\n') || `Exit code: ${res.code}`
+    let raw = ''
+    if (state.kind === 'idle') {
+      raw = 'Durum: Zamanlayıcı pasif. Herhangi bir bilgisayar kapatma işlemi kurulmamış.'
+    } else if (state.kind === 'prewait') {
+      const remainingSec = Math.max(0, Math.ceil((state.endsAtEpochMs - Date.now()) / 1000))
+      raw = `Durum: Ön bekleme aktif. Kalan ön bekleme: ${remainingSec} saniye. (Son 600 saniyede Windows shutdown /s /t 600 komutu tetiklenecek)`
+    } else if (state.kind === 'scheduled') {
+      const remainingSec = Math.max(0, Math.ceil((state.targetEpochMs - Date.now()) / 1000))
+      raw = `Durum: Windows kapatma zamanlandı (/s /t ${state.shutdownTSeconds}). Kalan süre: ~${remainingSec} saniye.`
+    }
 
-    // If we're in prewait, keep internal state (not affected by /a output)
     return { ok: true, value: { state, raw } }
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) }
   }
 })
-

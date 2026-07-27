@@ -14,9 +14,12 @@ Windows için **Kapatika** bilgisayar zamanlayıcı uygulaması. Electron ve Rea
 
 ## Özellikler
 
-- **Süre formatları**: `90`, `600s`, `10m`, `1h`, `1h30m`, `2h15m10s`
-- **İptal Seçeneği**: Başlatılmış zamanlanmış kapatmayı anında iptal edebilirsiniz.
-- **Kullanıcı Dostu Arayüz**: Tekerlek tipi kaydırılabilir menüler ile saniyeler içinde süre belirleme imkanı.
+- **Canlı Geri Sayım & İlerleme Çubuğu**: Aktif zamanlayıcılar için dijital saat ve görsel ilerleme çubuğu.
+- **Hızlı Süre Butonları**: 15 dk, 30 dk, 45 dk, 1 saat gibi hazır butonlarla 1-tıkla zamanlama.
+- **Tekerlek & Metin Senkronizasyonu**: Süre tekerleği ve serbest metin girişi (`90`, `600s`, `10m`, `1h30m`, `2h15m10s`) çift yönlü senkronizedir.
+- **İptal Seçeneği**: Başlatılmış zamanlanmış kapatmayı tek tıkla anında ve güvenle iptal edebilme.
+- **Web Önizleme Desteği**: Tarayıcı / Netlify üzerinde simülasyon olarak test edebilme imkanı.
+- **Kullanıcı Dostu & Cam Efektli (Glassmorphism) Modern Arayüz**: Şık karanlık tema ve tepkisel tasarım.
 
 ## Geliştirme
 

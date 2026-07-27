@@ -7,7 +7,7 @@ export type ShutdownPlan = {
 export type ShutdownState =
   | { kind: 'idle' }
   | { kind: 'prewait'; endsAtEpochMs: number; totalSeconds: number }
-  | { kind: 'scheduled'; shutdownTSeconds: number }
+  | { kind: 'scheduled'; shutdownTSeconds: number; targetEpochMs: number; totalSeconds: number }
 
 export type ApiResult<T> = { ok: true; value: T } | { ok: false; error: string }
 

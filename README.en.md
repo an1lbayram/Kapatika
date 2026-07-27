@@ -14,9 +14,12 @@ A Windows shutdown timer application. Developed with Electron and React. It secu
 
 ## Features
 
-- **Flexible time formats**: `90`, `600s`, `10m`, `1h`, `1h30m`, `2h15m10s`
-- **Cancel Option**: Instantly cancel a scheduled shutdown.
-- **User-Friendly Interface**: Set shutdown time in seconds with a wheel-style scroll picker.
+- **Live Countdown & Progress Bar**: Real-time digital clock and visual progress gauge for active timers.
+- **Quick Preset Buttons**: 1-click scheduling with 15 min, 30 min, 45 min, 1 hour presets.
+- **Wheel & Text Sync**: Bidirectional sync between scroll wheel and flexible time input (`90`, `600s`, `10m`, `1h30m`, `2h15m10s`).
+- **Instant Cancel**: Easily abort scheduled shutdowns with one click.
+- **Web Preview Support**: Safe simulation mode when running in browser / Netlify.
+- **Modern Glassmorphic UI**: Sleek dark mode design with responsive layout.
 
 ## Development
 
