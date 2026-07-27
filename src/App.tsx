@@ -328,7 +328,7 @@ export default function App() {
                 <Button
                   variant="text"
                   size="small"
-                  onClick={() => window.open('https://an1lbayram.github.io/', '_blank')}
+                  onClick={() => window.open('https://an1lbayram-github-io.vercel.app/', '_blank')}
                   sx={{
                     p: 0,
                     minWidth: 0,
