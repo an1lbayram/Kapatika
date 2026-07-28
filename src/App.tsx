@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react'
 import {
   Alert,
   AppBar,
@@ -630,6 +631,7 @@ export default function App() {
           </Card>
         </Stack>
       </Container>
+      <Analytics />
     </Box>
   )
 }
