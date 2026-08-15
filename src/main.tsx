@@ -10,6 +10,12 @@ const theme = createTheme({
     primary: {
       main: '#0284c7',
     },
+    // Default error.main (#f44336) with white contained-button text falls to a
+    // 3.68:1 contrast ratio, below the WCAG AA 4.5:1 minimum for bold 14px
+    // text (axe: color-contrast). red-700 clears it comfortably (~5.9:1).
+    error: {
+      main: '#b91c1c',
+    },
     background: {
       default: '#070a12',
       paper: '#0f172a',

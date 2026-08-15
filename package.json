@@ -9,10 +9,19 @@
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "build": "vite build && tsup && node -e \"require('fs').cpSync('dist-renderer', 'dist', {recursive: true})\"",
+    "build:web": "vite build",
     "prefetch:winCodeSign": "node scripts/prefetch-winCodeSign.mjs",
     "dist": "npm run prefetch:winCodeSign && npm run build && electron-builder",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "typecheck": "tsc -b",
+    "preview": "vite preview --port 43173 --strictPort",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "lighthouse": "npm run build:web && lhci autorun",
+    "audit": "npm audit --audit-level=high"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -23,22 +32,34 @@
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@eslint/js": "^9.39.4",
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.62.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.4",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/coverage-v8": "^4.1.10",
     "adm-zip": "^0.5.17",
     "electron": "^41.2.0",
     "electron-builder": "^26.8.1",
     "eslint": "^9.39.4",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
+    "eslint-plugin-security": "^4.0.1",
     "globals": "^17.4.0",
+    "jsdom": "^30.0.1",
     "tsup": "^8.5.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.0",
-    "vite": "^8.0.4"
+    "vite": "^8.0.4",
+    "vitest": "^4.1.10",
+    "vitest-axe": "^0.1.0"
   },
   "build": {
     "appId": "com.derbe.kapatika",

@@ -19,64 +19,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ApiResult, ShutdownPlan, ShutdownState } from '../electron/shared'
 import { DurationWheel } from './components/DurationWheel'
 import { IconCancel, IconClock, IconPower, IconRefresh } from './components/Icons'
-
-type ParsedDuration = { ok: true; seconds: number } | { ok: false; error: string }
-
-function parseDurationToSeconds(input: string): ParsedDuration {
-  const raw = (input ?? '').trim()
-  if (!raw) return { ok: false, error: 'Süre boş olamaz.' }
-
-  if (/^\d+$/.test(raw)) {
-    const sec = Number(raw)
-    if (!Number.isFinite(sec) || sec <= 0) return { ok: false, error: 'Süre 0\'dan büyük olmalı.' }
-    return { ok: true, seconds: sec }
-  }
-
-  const m = raw.match(/^\s*(?:(\d+)\s*h)?\s*(?:(\d+)\s*m)?\s*(?:(\d+)\s*s?)?\s*$/i)
-  if (!m || (!m[1] && !m[2] && !m[3])) {
-    return { ok: false, error: 'Format: 90, 600s, 10m, 1h30m, 2h15m10s' }
-  }
-
-  const h = Number(m[1] ?? 0)
-  const min = Number(m[2] ?? 0)
-  const s = Number(m[3] ?? 0)
-  const total = h * 3600 + min * 60 + s
-  if (!Number.isFinite(total) || total <= 0) return { ok: false, error: 'Süre 0\'dan büyük olmalı.' }
-  return { ok: true, seconds: total }
-}
-
-function formatDuration(totalSeconds: number): string {
-  const t = Math.max(0, Math.floor(totalSeconds))
-  const h = Math.floor(t / 3600)
-  const m = Math.floor((t % 3600) / 60)
-  const s = t % 60
-  if (h > 0) return `${h}sa ${m}dk ${s}sn`
-  if (m > 0) return `${m}dk ${s}sn`
-  return `${s}sn`
-}
-
-function formatDigitalClock(totalSeconds: number): string {
-  const t = Math.max(0, Math.floor(totalSeconds))
-  const h = Math.floor(t / 3600)
-  const m = Math.floor((t % 3600) / 60)
-  const s = t % 60
-  const hh = String(h).padStart(2, '0')
-  const mm = String(m).padStart(2, '0')
-  const ss = String(s).padStart(2, '0')
-  return `${hh}:${mm}:${ss}`
-}
-
-function convertSecondsToText(totalSeconds: number): string {
-  if (totalSeconds <= 0) return ''
-  const h = Math.floor(totalSeconds / 3600)
-  const m = Math.floor((totalSeconds % 3600) / 60)
-  const s = totalSeconds % 60
-  const parts: string[] = []
-  if (h > 0) parts.push(`${h}h`)
-  if (m > 0) parts.push(`${m}m`)
-  if (s > 0) parts.push(`${s}s`)
-  return parts.join('') || `${totalSeconds}s`
-}
+import {
+  convertSecondsToText,
+  formatDigitalClock,
+  formatDuration,
+  parseDurationToSeconds,
+} from './lib/duration'
 
 // Fallback mock API for Web Preview (e.g. Netlify)
 let mockWebState: ShutdownState = { kind: 'idle' }
@@ -226,6 +174,9 @@ export default function App() {
       const res = await api.schedule(targetSeconds)
       if (!res.ok) throw new Error(res.error)
       const plan = res.value
+      // refreshStatus() clears info/error as part of its own fetch, so it must
+      // run before the success message below or it wipes it out immediately.
+      await refreshStatus()
       if (plan.preWaitSeconds > 0) {
         setInfo(
           `Kapatma kuruldu: Toplam ${formatDuration(plan.totalSeconds)}. Önce ${formatDuration(plan.preWaitSeconds)} ön bekleme yapılır, ardından son 10 dk işletim sistemi kapatma zamanlayıcısı devreye girer.`,
@@ -233,7 +184,6 @@ export default function App() {
       } else {
         setInfo(`Kapatma kuruldu: ${formatDuration(plan.shutdownTSeconds)} sonra bilgisayar kapanacak.`)
       }
-      await refreshStatus()
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -248,8 +198,9 @@ export default function App() {
     try {
       const res = await api.cancel()
       if (!res.ok) throw new Error(res.error)
-      setInfo('Zamanlanmış kapatma başarıyla iptal edildi.')
+      // Same ordering fix as schedule(): refreshStatus() must run first.
       await refreshStatus()
+      setInfo('Zamanlanmış kapatma başarıyla iptal edildi.')
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -321,7 +272,7 @@ export default function App() {
               <IconPower sx={{ color: '#fff', fontSize: 22 }} />
             </Box>
             <Box>
-              <Typography variant="h6" sx={{ fontWeight: 700, letterSpacing: -0.5, lineHeight: 1.1 }}>
+              <Typography variant="h6" component="h1" sx={{ fontWeight: 700, letterSpacing: -0.5, lineHeight: 1.1 }}>
                 Kapatika
               </Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -329,7 +280,7 @@ export default function App() {
                 <Button
                   variant="text"
                   size="small"
-                  onClick={() => window.open('https://an1lbayram-github-io.vercel.app/', '_blank')}
+                  onClick={() => window.open('https://an1lbayram-github-io.vercel.app/', '_blank', 'noopener,noreferrer')}
                   sx={{
                     p: 0,
                     minWidth: 0,
@@ -364,7 +315,12 @@ export default function App() {
         </Toolbar>
       </AppBar>
 
-      {busy && <LinearProgress sx={{ bgcolor: 'rgba(56, 189, 248, 0.2)', '& .MuiLinearProgress-bar': { bgcolor: '#38bdf8' } }} />}
+      {busy && (
+        <LinearProgress
+          aria-label="Yükleniyor"
+          sx={{ bgcolor: 'rgba(56, 189, 248, 0.2)', '& .MuiLinearProgress-bar': { bgcolor: '#38bdf8' } }}
+        />
+      )}
 
       {!isElectron && (
         <Alert
@@ -403,6 +359,8 @@ export default function App() {
 
                   <Typography
                     variant="h2"
+                    component="div"
+                    data-testid="countdown-clock"
                     sx={{
                       fontWeight: 800,
                       fontVariantNumeric: 'tabular-nums',
@@ -424,6 +382,8 @@ export default function App() {
                     <LinearProgress
                       variant="determinate"
                       value={progressPercent}
+                      aria-label="Kapatma sayacı ilerlemesi"
+                      data-testid="countdown-progress"
                       sx={{
                         height: 8,
                         borderRadius: 4,
@@ -466,7 +426,7 @@ export default function App() {
               <Stack spacing={3}>
                 <Stack direction="row" spacing={1} alignItems="center">
                   <IconClock sx={{ color: '#38bdf8' }} />
-                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                  <Typography variant="h6" component="h2" sx={{ fontWeight: 700 }}>
                     Kapatma Süresi Belirle
                   </Typography>
                 </Stack>
@@ -495,7 +455,7 @@ export default function App() {
                   <DurationWheel value={wheel} onChange={handleWheelChange} />
 
                   <Box sx={{ flex: 1 }}>
-                    <Typography variant="subtitle2" sx={{ color: 'rgba(255,255,255,0.7)', mb: 1 }}>
+                    <Typography variant="subtitle2" component="p" sx={{ color: 'rgba(255,255,255,0.7)', mb: 1 }}>
                       Seçilen Süre:{' '}
                       <Box component="span" sx={{ color: '#38bdf8', fontWeight: 700, fontSize: 16 }}>
                         {wheelSeconds > 0 ? formatDuration(wheelSeconds) : 'Süre seçin'}
@@ -606,7 +566,7 @@ export default function App() {
           >
             <CardContent sx={{ p: 2.5 }}>
               <Stack spacing={1}>
-                <Typography variant="subtitle2" sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 12 }}>
+                <Typography variant="subtitle2" component="p" sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 12 }}>
                   Sistem Çıktısı (Komut Detayı)
                 </Typography>
                 <Box

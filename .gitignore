@@ -32,3 +32,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Test/QA tooling output
+coverage/
+playwright-report/
+test-results/
+.lighthouseci/
+e2e/**/*-snapshots/**/*-actual.png
+e2e/**/*-snapshots/**/*-diff.png

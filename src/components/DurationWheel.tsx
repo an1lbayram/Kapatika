@@ -26,8 +26,29 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
   const rafRef = useRef<number | null>(null)
   const isUserScrollingRef = useRef(false)
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  // `el.scrollTo()` fires the same native 'scroll' events as a real user drag,
+  // so every programmatic scroll (from the sync effect below, or from the
+  // click/keydown handlers) must be flagged here first. Otherwise onScroll
+  // misreads the animation's own intermediate positions as user input and
+  // calls onChange with transient values, corrupting the selection mid-flight
+  // (observed: selecting a preset requiring a long scroll never actually landed).
+  const isProgrammaticScrollRef = useRef(false)
+  const programmaticScrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const selectedIndex = values.indexOf(value)
+
+  function scrollToIndex(idx: number) {
+    const el = containerRef.current
+    if (!el) return
+    isProgrammaticScrollRef.current = true
+    if (programmaticScrollTimeoutRef.current) clearTimeout(programmaticScrollTimeoutRef.current)
+    // Fallback for browsers/cases where 'scrollend' doesn't fire (e.g. the
+    // target was already in view, so no scroll event follows at all).
+    programmaticScrollTimeoutRef.current = setTimeout(() => {
+      isProgrammaticScrollRef.current = false
+    }, 500)
+    el.scrollTo({ top: idx * itemH, behavior: 'smooth' })
+  }
 
   // Scroll to selected position when prop changes externally (not during user scrolling)
   useEffect(() => {
@@ -37,8 +58,7 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
 
     const currentIdx = Math.round(el.scrollTop / itemH)
     if (currentIdx !== selectedIndex) {
-      const top = selectedIndex * itemH
-      el.scrollTo({ top, behavior: 'smooth' })
+      scrollToIndex(selectedIndex)
     }
   }, [selectedIndex, itemH])
 
@@ -47,6 +67,8 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
     if (!el) return
 
     const onScroll = () => {
+      if (isProgrammaticScrollRef.current) return
+
       isUserScrollingRef.current = true
       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current)
       scrollTimeoutRef.current = setTimeout(() => {
@@ -62,11 +84,19 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
       })
     }
 
+    const onScrollEnd = () => {
+      isProgrammaticScrollRef.current = false
+      if (programmaticScrollTimeoutRef.current) clearTimeout(programmaticScrollTimeoutRef.current)
+    }
+
     el.addEventListener('scroll', onScroll, { passive: true })
+    el.addEventListener('scrollend', onScrollEnd, { passive: true })
     return () => {
       el.removeEventListener('scroll', onScroll)
+      el.removeEventListener('scrollend', onScrollEnd)
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current)
+      if (programmaticScrollTimeoutRef.current) clearTimeout(programmaticScrollTimeoutRef.current)
     }
   }, [itemH, onChange, value, values])
 
@@ -90,6 +120,24 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
       >
         <Box
           ref={containerRef}
+          tabIndex={0}
+          role="listbox"
+          aria-label={label}
+          onKeyDown={(e) => {
+            const idx = clampIndex(values.indexOf(value), 0, values.length - 1)
+            let nextIdx = idx
+            if (e.key === 'ArrowUp') nextIdx = clampIndex(idx - 1, 0, values.length - 1)
+            else if (e.key === 'ArrowDown') nextIdx = clampIndex(idx + 1, 0, values.length - 1)
+            else if (e.key === 'Home') nextIdx = 0
+            else if (e.key === 'End') nextIdx = values.length - 1
+            else return
+            e.preventDefault()
+            const next = values[nextIdx]
+            if (next === value) return
+            isUserScrollingRef.current = false
+            onChange(next)
+            scrollToIndex(nextIdx)
+          }}
           sx={{
             height: itemH * 5,
             overflowY: 'auto',
@@ -100,6 +148,10 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
               'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
             maskImage:
               'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
+            '&:focus-visible': {
+              outline: '2px solid #38bdf8',
+              outlineOffset: -2,
+            },
           }}
         >
           {list.map((v, i) => {
@@ -109,6 +161,9 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
             return (
               <Box
                 key={`${label}-${i}-${txt}`}
+                role={isBlank ? undefined : 'option'}
+                aria-selected={isBlank ? undefined : isSelected}
+                aria-hidden={isBlank || undefined}
                 sx={{
                   height: itemH,
                   display: 'flex',
@@ -129,7 +184,7 @@ function WheelColumn({ label, values, value, onChange, pad2 }: WheelColumnProps)
                   if (idx < 0) return
                   isUserScrollingRef.current = false
                   onChange(v)
-                  containerRef.current?.scrollTo({ top: idx * itemH, behavior: 'smooth' })
+                  scrollToIndex(idx)
                 }}
               >
                 {txt}
