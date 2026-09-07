@@ -256,7 +256,7 @@ export default function App() {
         }}
       >
         <Toolbar sx={{ justifyContent: 'space-between' }}>
-          <Stack direction="row" spacing={1.5} alignItems="center">
+          <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
             <Box
               sx={{
                 width: 36,
@@ -350,7 +350,7 @@ export default function App() {
               }}
             >
               <CardContent sx={{ p: 3 }}>
-                <Stack spacing={2} alignItems="center" textAlign="center">
+                <Stack spacing={2} sx={{ alignItems: 'center', textAlign: 'center' }}>
                   <Chip
                     label={stateTitle}
                     color={badgeColor}
@@ -424,7 +424,7 @@ export default function App() {
           >
             <CardContent sx={{ p: 3 }}>
               <Stack spacing={3}>
-                <Stack direction="row" spacing={1} alignItems="center">
+                <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                   <IconClock sx={{ color: '#38bdf8' }} />
                   <Typography variant="h6" component="h2" sx={{ fontWeight: 700 }}>
                     Kapatma Süresi Belirle
@@ -432,7 +432,7 @@ export default function App() {
                 </Stack>
 
                 {/* Quick Presets */}
-                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ gap: 1 }}>
+                <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap', gap: 1 }}>
                   {PRESETS.map((p) => (
                     <Chip
                       key={p.label}
@@ -451,7 +451,7 @@ export default function App() {
                 </Stack>
 
                 {/* Duration Wheel & Action Buttons */}
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} alignItems={{ sm: 'center' }}>
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} sx={{ alignItems: { sm: 'center' } }}>
                   <DurationWheel value={wheel} onChange={handleWheelChange} />
 
                   <Box sx={{ flex: 1 }}>
@@ -511,7 +511,7 @@ export default function App() {
                   <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)', fontWeight: 600 }}>
                     Alternatif Metin Girişi
                   </Typography>
-                  <Stack direction="row" spacing={1.5} alignItems="center">
+                  <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
                     <TextField
                       size="small"
                       label="Örnek: 90, 600s, 10m, 1h30m"
