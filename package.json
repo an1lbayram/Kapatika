@@ -44,7 +44,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "@vitest/coverage-v8": "^4.1.10",
-    "adm-zip": "^0.5.17",
+    "adm-zip": "^0.6.0",
     "electron": "^41.2.0",
     "electron-builder": "^26.8.1",
     "eslint": "^9.39.4",
